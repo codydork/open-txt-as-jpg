@@ -42,7 +42,6 @@
             color: #333;
         }
 
-        /* Enable access to media files on mobile */
         input[type="file"] {
             margin: 10px 0;
             padding: 10px;
@@ -97,7 +96,7 @@
             object-fit: contain;
         }
 
-        /* Resize handle for the bottom-left corner */
+        /* Resize handle */
         .resize-handle {
             position: absolute;
             bottom: 5px;
@@ -119,12 +118,12 @@
 
     <div class="container">
         <h1>Convert TXT to JPG</h1>
-        <input type="file" id="fileInput" accept=".txt,image/*" multiple />
+        <input type="file" id="fileInput" accept=".txt" multiple />
         <button onclick="convertToJPG()">Convert and Display</button>
 
         <div id="imageContainer"></div>
         
-        <p class="footer">Note: Ensure each .txt file contains a hidden JPG image.</p>
+        <p class="footer">Note: Each .txt file should contain hidden JPG data.</p>
     </div>
 
     <script>
