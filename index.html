@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TXT to JPG Converter</title>
+    <title>TXT to JPG Converter - Offline</title>
     <style>
         /* Reset some default styles */
         * {
@@ -20,7 +20,7 @@
             align-items: center;
             height: 100vh;
             color: white;
-            overflow: hidden; /* Prevent body from scrolling */
+            overflow: hidden;
         }
 
         .container {
@@ -42,6 +42,7 @@
             color: #333;
         }
 
+        /* Enable access to media files on mobile */
         input[type="file"] {
             margin: 10px 0;
             padding: 10px;
@@ -67,27 +68,45 @@
         }
 
         #imageContainer {
-            resize: both; /* Allow resizing both horizontally and vertically */
-            overflow: auto;
-            width: 100%; /* Start with full container width */
-            max-width: 100%; /* Prevent overflow beyond the parent */
-            height: 300px; /* Default height */
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 300px;
+            overflow-y: auto;
             background-color: #f0f0f0;
             border: 1px solid #ccc;
             padding: 10px;
             border-radius: 5px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
         }
 
-        img {
+        .imageWrapper {
+            position: relative;
+            background-color: #ffffff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            overflow: hidden;
+            resize: both;
+            width: 100%;
+        }
+
+        .imageWrapper img {
             max-width: 100%;
             max-height: 100%;
-            width: auto;   /* Maintain aspect ratio */
-            height: auto;  /* Maintain aspect ratio */
-            display: none; /* Initially hidden */
             border-radius: 5px;
+            object-fit: contain;
+        }
+
+        /* Resize handle for the bottom-left corner */
+        .resize-handle {
+            position: absolute;
+            bottom: 5px;
+            left: 5px;
+            width: 15px;
+            height: 15px;
+            background-color: #333;
+            cursor: se-resize;
+            border-radius: 3px;
         }
 
         .footer {
@@ -100,54 +119,86 @@
 
     <div class="container">
         <h1>Convert TXT to JPG</h1>
-        <input type="file" id="fileInput" accept=".txt" />
+        <input type="file" id="fileInput" accept=".txt,image/*" multiple />
         <button onclick="convertToJPG()">Convert and Display</button>
 
-        <div id="imageContainer">
-            <img id="imageDisplay" alt="Converted Image" />
-        </div>
+        <div id="imageContainer"></div>
         
-        <p class="footer">Note: Make sure the file is a hidden JPG renamed as .txt</p>
+        <p class="footer">Note: Ensure each .txt file contains a hidden JPG image.</p>
     </div>
 
     <script>
         function convertToJPG() {
             const fileInput = document.getElementById("fileInput");
-            const file = fileInput.files[0];
+            const files = fileInput.files;
 
-            if (!file) {
-                alert("Please upload a .txt file!");
+            if (!files.length) {
+                alert("Please upload .txt files!");
                 return;
             }
 
-            // Ensure the uploaded file is a .txt file
-            if (file.name.split('.').pop() !== 'txt') {
-                alert("Please upload a valid .txt file with a hidden JPG image.");
-                return;
-            }
+            const imageContainer = document.getElementById("imageContainer");
+            imageContainer.innerHTML = "";  // Clear previous images
 
-            // Read the .txt file as binary data
-            const reader = new FileReader();
+            Array.from(files).forEach((file) => {
+                if (file.name.split('.').pop() !== 'txt') {
+                    alert(`File ${file.name} is not a valid .txt file with a hidden JPG image.`);
+                    return;
+                }
 
-            reader.onload = function(event) {
-                const arrayBuffer = event.target.result;
-                const blob = new Blob([arrayBuffer], { type: 'image/jpeg' });
+                const reader = new FileReader();
 
-                // Create a temporary URL for the image
-                const imageUrl = URL.createObjectURL(blob);
+                reader.onload = function(event) {
+                    const arrayBuffer = event.target.result;
+                    const blob = new Blob([arrayBuffer], { type: 'image/jpeg' });
+                    const imageUrl = URL.createObjectURL(blob);
 
-                // Display the image on the page
-                const img = document.getElementById("imageDisplay");
-                img.src = imageUrl;
-                img.style.display = "block";
-            };
+                    // Create a wrapper for each image
+                    const imageWrapper = document.createElement("div");
+                    imageWrapper.classList.add("imageWrapper");
 
-            reader.onerror = function() {
-                alert("Error reading the file.");
-            };
+                    // Create and display the image
+                    const img = document.createElement("img");
+                    img.src = imageUrl;
+                    img.alt = "Converted Image";
 
-            // Read the file as an ArrayBuffer to handle binary data
-            reader.readAsArrayBuffer(file);
+                    // Append the image and resize handle
+                    const resizeHandle = document.createElement("div");
+                    resizeHandle.classList.add("resize-handle");
+
+                    resizeHandle.addEventListener('mousedown', initResize);
+
+                    // Append to the container
+                    imageWrapper.appendChild(img);
+                    imageWrapper.appendChild(resizeHandle);
+                    imageContainer.appendChild(imageWrapper);
+                };
+
+                reader.onerror = function() {
+                    alert(`Error reading file ${file.name}.`);
+                };
+
+                reader.readAsArrayBuffer(file);
+            });
+        }
+
+        function initResize(e) {
+            e.preventDefault();
+            const imageWrapper = e.target.parentNode;
+            window.addEventListener('mousemove', (event) => resizeImage(event, imageWrapper));
+            window.addEventListener('mouseup', stopResize);
+        }
+
+        function resizeImage(e, imageWrapper) {
+            const newWidth = e.clientX - imageWrapper.getBoundingClientRect().left;
+            const newHeight = e.clientY - imageWrapper.getBoundingClientRect().top;
+            imageWrapper.style.width = `${newWidth}px`;
+            imageWrapper.style.height = `${newHeight}px`;
+        }
+
+        function stopResize() {
+            window.removeEventListener('mousemove', resizeImage);
+            window.removeEventListener('mouseup', stopResize);
         }
     </script>
 
