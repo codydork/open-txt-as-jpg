@@ -67,8 +67,11 @@
         }
 
         #imageContainer {
-            max-height: 300px;
-            overflow: auto; /* Scrollable if the image is too large */
+            resize: both; /* Allow resizing both horizontally and vertically */
+            overflow: auto;
+            width: 100%; /* Start with full container width */
+            max-width: 100%; /* Prevent overflow beyond the parent */
+            height: 300px; /* Default height */
             background-color: #f0f0f0;
             border: 1px solid #ccc;
             padding: 10px;
@@ -81,7 +84,9 @@
         img {
             max-width: 100%;
             max-height: 100%;
-            display: none;
+            width: auto;   /* Maintain aspect ratio */
+            height: auto;  /* Maintain aspect ratio */
+            display: none; /* Initially hidden */
             border-radius: 5px;
         }
 
@@ -99,7 +104,6 @@
         <button onclick="convertToJPG()">Convert and Display</button>
 
         <div id="imageContainer">
-            <h3>Your image will appear here:</h3>
             <img id="imageDisplay" alt="Converted Image" />
         </div>
         
