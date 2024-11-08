@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TXT to JPG Converter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            text-align: center;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        input[type="file"] {
+            margin: 10px 0;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            background-color: #28a745;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        #imageContainer {
+            margin-top: 20px;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Upload your disguised JPG (TXT extension)</h1>
+        <input type="file" id="fileInput" accept=".txt" />
+        <button onclick="convertToJPG()">Convert and Display</button>
+
+        <div id="imageContainer">
+            <h3>Your image will appear here:</h3>
+            <img id="imageDisplay" alt="Your Image" />
+        </div>
+    </div>
+
+    <script>
+        function convertToJPG() {
+            const fileInput = document.getElementById("fileInput");
+            const file = fileInput.files[0];
+
+            if (!file) {
+                alert("Please upload a .txt file!");
+                return;
+            }
+
+            // Ensure the uploaded file is a .txt file
+            if (file.name.split('.').pop() !== 'txt') {
+                alert("Please upload a valid .txt file with a hidden JPG image.");
+                return;
+            }
+
+            // Read the .txt file as binary data
+            const reader = new FileReader();
+
+            reader.onload = function(event) {
+                const arrayBuffer = event.target.result;
+                const blob = new Blob([arrayBuffer], { type: 'image/jpeg' });
+
+                // Create a temporary URL for the image
+                const imageUrl = URL.createObjectURL(blob);
+
+                // Display the image on the page
+                const img = document.getElementById("imageDisplay");
+                img.src = imageUrl;
+                img.style.display = "block";
+            };
+
+            reader.onerror = function() {
+                alert("Error reading the file.");
+            };
+
+            // Read the file as an ArrayBuffer to handle binary data
+            reader.readAsArrayBuffer(file);
+        }
+    </script>
+
+</body>
+</html>
